@@ -10,15 +10,27 @@
     "@types/node": "^16.18.14",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "dotenv": "^16.0.3",
+    "framer-motion": "^10.2.4",
+    "openai": "^3.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
+    "react-dotenv": "^0.1.3",
+    "react-hook-form": "^7.43.5",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.9.0",
+    "react-scripts": "^4.0.3",
+    "recoil": "^0.7.7",
+    "recoil-persist": "^4.2.0",
+    "styled-component": "^2.8.0",
+    "styled-components": "^5.3.8",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-dotenv && react-scripts start",
+    "build": "react-dotenv && react-scripts build",
+    "serve": "react-dotenv && serve build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -39,5 +51,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/styled-components": "^5.1.26",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1"
   }
 }
