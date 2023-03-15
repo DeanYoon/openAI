@@ -1,16 +1,11 @@
 name: My Workflow
-on:
-  push:
-    branches: [ main ]
+on: push
 jobs:
-  build:
+  job1:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Build project
-        run: npm run build
-      - name: Deploy to production
-        run: npm run deploy
+      - name : Test
+        run: |
+          echo OPENAI_API_KEY
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
