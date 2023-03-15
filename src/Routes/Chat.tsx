@@ -1,15 +1,11 @@
-import { debug } from "console";
+// import { debug } from "console";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { aiTextList, myTextList } from "../atoms";
+import { aiTextList, myTextList, widthSize } from "../atoms";
 import { useForm } from "react-hook-form";
-import env from "react-dotenv";
-import dotenv from "dotenv";
-dotenv.config();
-
 // Clear the data stored in localStorage
-
+import { OPENAI_API_KEY } from "../apiKeys";
 const character = [
   {
     title: "Sarcastic",
@@ -30,28 +26,34 @@ const ButtonsHeader = styled.div`
   width: 100%;
   margin-top: 40px;
   margin-bottom: 20px;
-  padding-top: 20px;
+  padding: 20px 10px 0 10px;
   display: flex;
   justify-content: space-between;
 `;
-
-const ButtonsLeft = styled.div`
+interface ButtonProps {
+  width: number;
+}
+const ButtonsLeft = styled.div<ButtonProps>`
   width: 100%;
+  display: flex;
+  justify-content: ${(props) => (props.width > 500 ? "none" : "space-between")};
   button {
     width: 20%;
+    min-width: 60px;
+    margin: 0 ${(props) => (props.width > 500 ? "10px" : "0px")};
     height: 100%;
-    margin: 0 20px;
     border-radius: 20px;
+    font-size: ${(props) => (props.width > 500 ? "20px" : "10px")};
   }
 `;
-const ResetButton = styled.div`
+const ResetButton = styled.div<ButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 200px;
   height: 100%;
   background-color: black;
-  font-size: 30px;
+  font-size: ${(props) => (props.width > 500 ? "20px" : "15px")};
   color: red;
   font-weight: 1000;
   border-radius: 20px;
@@ -78,9 +80,10 @@ const ChatBox = styled.div`
   height: 100%;
   overflow-y: scroll;
   padding: 0 30px;
+  min-width: 375px;
 `;
 
-const ChatBoxMessage = styled.ul`
+const ChatBoxMessage = styled.div`
   display: flex;
   flex-direction: column;
   font-size: 20px;
@@ -94,6 +97,7 @@ const ChatFromMe = styled.div`
   margin-left: auto;
   padding: 10px;
   border-radius: 10px;
+  max-width: 40%;
 `;
 
 const ChatFromAi = styled.div`
@@ -101,7 +105,7 @@ const ChatFromAi = styled.div`
   margin-right: auto;
   padding: 10px;
   border-radius: 10px;
-  max-width: 40%;
+  max-width: 60%;
 `;
 
 const GetEmotionForm = styled.form`
@@ -139,6 +143,7 @@ function Text() {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const { register, handleSubmit } = useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const width = useRecoilValue(widthSize);
 
   const onValid = (data: any) => {
     console.log(botTypePrompt);
@@ -176,7 +181,7 @@ function Text() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + env.REACT_APP_OPENAI_API_KEY,
+        Authorization: "Bearer " + OPENAI_API_KEY,
       },
       body: JSON.stringify(APIBody),
     })
@@ -199,15 +204,18 @@ function Text() {
     setAiResult([]);
     setMyText([]);
   }
+
   function setBotChracter(e: any) {
     setBotType(e.target.textContent);
   }
+
   //scroll to bottom
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [myText, aiResult]);
+
   useEffect(() => {
     // setBotTypePrompt();
     const texts = character.find((obj) => obj.title === botType)?.text;
@@ -218,7 +226,7 @@ function Text() {
   return (
     <GetEmotionWrapper>
       <ButtonsHeader>
-        <ButtonsLeft>
+        <ButtonsLeft width={width}>
           {character.map((data) => (
             <button
               onClick={setBotChracter}
@@ -231,14 +239,16 @@ function Text() {
           ))}
         </ButtonsLeft>
 
-        <ResetButton onClick={resetData}>Reset</ResetButton>
+        <ResetButton width={width} onClick={resetData}>
+          Reset
+        </ResetButton>
       </ButtonsHeader>
       <Title>{botType} Chat Bot</Title>
       <ChatBox ref={chatBoxRef}>
         {myText.length > 0 &&
           myText.map((textObj, i) => (
             <ChatBoxMessage>
-              <ChatFromMe>{textObj.text}</ChatFromMe>
+              <ChatFromMe key={`${textObj.id}Me`}>{textObj.text}</ChatFromMe>
               <ChatFromAi key={textObj.id}>
                 {aiResult[i] ? aiResult[i].text : "Writing..."}
               </ChatFromAi>

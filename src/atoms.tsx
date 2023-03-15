@@ -23,3 +23,8 @@ export const aiTextList = atom<iTextData[]>({
   default: [],
   effects_UNSTABLE: [persistAtom],
 });
+
+export const widthSize = atom({
+  key: "width",
+  default: window.innerWidth,
+});

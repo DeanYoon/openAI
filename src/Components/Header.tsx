@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
+import { widthSize } from "../atoms";
 import robotLogo from "../imgs/robotLogo.png";
 const Nav = styled.div`
   position: absolute;
@@ -26,17 +29,26 @@ const Item = styled.div`
 `;
 
 function Header() {
+  const [width, setWidth] = useRecoilState(widthSize);
+  window.addEventListener("resize", () => {
+    setWidth(window.innerWidth);
+  });
+
+  useEffect(() => {
+    console.log(width);
+  }, [width]);
+
   return (
     <Nav>
       <Logo>
-        <img src={robotLogo} />
+        <img alt="" src={robotLogo} />
       </Logo>
       <Items>
         <Link to="/">
           <Item>Home</Item>
         </Link>
-        <Link to="/text">
-          <Item>Text</Item>
+        <Link to="/chat">
+          <Item>Chat</Item>
         </Link>
         <Link to="/image">
           <Item>Image</Item>

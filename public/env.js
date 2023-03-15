@@ -23,7 +23,7 @@ window.env = {
   "COMMAND_MODE": "unix2003",
   "npm_config_globalconfig": "/opt/homebrew/etc/npmrc",
   "CONDA_EXE": "/Users/deanyoon/opt/anaconda3/bin/conda",
-  "SSH_AUTH_SOCK": "/private/tmp/com.apple.launchd.qfp6LQpIi2/Listeners",
+  "SSH_AUTH_SOCK": "/private/tmp/com.apple.launchd.GhifAFt8UJ/Listeners",
   "__CF_USER_TEXT_ENCODING": "0x1F5:0x3:0x33",
   "npm_execpath": "/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js",
   "PYENV_VIRTUALENV_INIT": "1",
