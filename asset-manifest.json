@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/openAI/static/js/main.237c9bd5.js",
+    "main.js": "/openAI/static/js/main.c88328a2.js",
     "static/media/robotLogo.png": "/openAI/static/media/robotLogo.4b8bdc5e87bae786d736.png",
     "index.html": "/openAI/index.html",
-    "main.237c9bd5.js.map": "/openAI/static/js/main.237c9bd5.js.map"
+    "main.c88328a2.js.map": "/openAI/static/js/main.c88328a2.js.map"
   },
   "entrypoints": [
-    "static/js/main.237c9bd5.js"
+    "static/js/main.c88328a2.js"
   ]
 }
