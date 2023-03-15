@@ -6,6 +6,6 @@ jobs:
     steps:
       - name : Test
         run: |
-          echo OPENAI_API_KEY
+          echo API_KEY
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          API_KEY: ${{ secrets.OPENAI_API_KEY }}
