@@ -10,6 +10,7 @@
     "@types/node": "^16.18.14",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "dotenv": "^16.0.3",
     "framer-motion": "^10.2.4",
     "openai": "^3.2.1",
     "react": "^18.2.0",
@@ -29,7 +30,9 @@
     "build": "craco build",
     "serve": "craco serve",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "eslintConfig": {
     "extends": [
@@ -51,13 +54,16 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
+    "@types/dotenv": "^8.2.0",
     "@types/styled-components": "^5.1.26",
     "@types/ws": "^8.5.4",
     "craco": "^0.0.3",
+    "gh-pages": "^5.0.0",
     "path-browserify": "^1.0.1",
     "react-error-overlay": "6.0.9"
   },
   "overrides": {
     "react-error-overlay": "6.0.9"
-  }
+  },
+  "homepage": "https://deanyoon.github.io/openAI/"
 }
