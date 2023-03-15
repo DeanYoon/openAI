@@ -9,8 +9,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build project
-        run: npm build
+        run: npm run build
       - name: Deploy to production
-        run: npm deploy
+        run: npm run deploy
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
