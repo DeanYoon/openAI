@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 // import { OPENAI_API_KEY } from "../apiKeys";
 import { config } from "dotenv";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.API_KEY;
 // console.log(OPENAI_API_KEY);
 // const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
