@@ -28,3 +28,13 @@ export const widthSize = atom({
   key: "width",
   default: window.innerWidth,
 });
+
+export interface iApiKey {
+  API: string;
+}
+
+export const apiKey = atom({
+  key: "apiKey",
+  default: "",
+  effects_UNSTABLE: [persistAtom],
+});

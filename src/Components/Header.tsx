@@ -44,7 +44,7 @@ function Header() {
         <img alt="" src={robotLogo} />
       </Logo>
       <Items>
-        <Link to="/opanAI">
+        <Link to="/openAI">
           <Item>Home</Item>
         </Link>
         <Link to="/openAI/chat">
