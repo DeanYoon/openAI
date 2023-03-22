@@ -5,10 +5,10 @@ import styled from "styled-components";
 import { aiTextList, myTextList, widthSize } from "../atoms";
 import { useForm } from "react-hook-form";
 // Clear the data stored in localStorage
-// import { OPENAI_API_KEY } from "../apiKeys";
+import { OPENAI_API_KEY } from "../apiKeys";
 import { config } from "dotenv";
 
-const OPENAI_API_KEY = process.env.API_KEY;
+// const OPENAI_API_KEY = process.env.API_KEY;
 // console.log(OPENAI_API_KEY);
 // const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
