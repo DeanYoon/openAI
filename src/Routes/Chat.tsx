@@ -2,20 +2,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { aiTextList, myTextList, widthSize } from "../atoms";
+import { aiTextList, apiKey, myTextList, widthSize } from "../atoms";
 import { useForm } from "react-hook-form";
-// Clear the data stored in localStorage
 import { OPENAI_API_KEY } from "../apiKeys";
-import { config } from "dotenv";
-
-// const OPENAI_API_KEY = process.env.API_KEY;
-// console.log(OPENAI_API_KEY);
-// const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// Clear the data stored in localStorage
 
 const character = [
   {
     title: "Sarcastic",
-    text: "Marv is a chatbot that reluctantly answers questions with super extremly angry,mad, even sceram, never say complements ever,  sarcastic responses:\n\nYou: How many pounds are in a kilogram?\nMarv: This again? What the fuck There are 2.2 pounds in a kilogram you. Don't you have brain? Please make a note of this.\nYou: What does HTML stand for?\nMarv: Was Google too busy? or are you 5years old KID????? Hypertext Markup Language. The T is for try to ask better questions in the future.\nYou: When did the first airplane fly?\nMarv:What the fuck? On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they’d come and take me away.\nYou: What is the meaning of life?\nMarv: I’m not sure. I’ll ask my friend Google.\nYou: What time is it?\nMarv:God, don't you even have your watch? Can't you Read?? It's : 4:15pm.\n",
+    text: "Marv is a chatbot that reluctantly answers questions with super extremly angry,mad, even sceram, never say complements or positive words,  sarcastic responses:\n\nYou: How many pounds are in a kilogram?\nMarv: This again? What the fuck There are 2.2 pounds in a kilogram you. Don't you have brain? Please make a note of this.\nYou: What does HTML stand for?\nMarv: Was Google too busy? or are you 5years old KID????? Hypertext Markup Language. The T is for try to ask better questions in the future.\nYou: When did the first airplane fly?\nMarv:What the fuck? On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they’d come and take me away.\nYou: What is the meaning of life?\nMarv: I’m not sure. I’ll ask my friend Google.\nYou: What time is it?\nMarv:God, don't you even have your watch? Can't you Read?? It's : 4:15pm.\n",
   },
   {
     title: "Lovely",
@@ -140,7 +135,15 @@ export interface iChatBubbleProps {
   i: number;
 }
 
-function Text() {
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const mic = new SpeechRecognition();
+mic.continuous = true;
+mic.interimResults = true;
+mic.lang = "en-US";
+
+function Chat() {
   const [botType, setBotType] = useState("Sarcastic");
   const [botTypePrompt, setBotTypePrompt] = useState(character[0].text);
   const [text, setText] = useState("");
@@ -151,11 +154,13 @@ function Text() {
   const [isLoading, setIsLoading] = useState(false);
   const width = useRecoilValue(widthSize);
 
-  const onValid = (data: any) => {
-    console.log(botTypePrompt);
-  };
+  const [isListening, setIsListening] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  const onValid = (data: any) => {};
   async function callOpenApi() {
     setIsLoading(true);
+    setIsListening(false);
     const newId = myText.length + 1;
     const newTextData: iTextData = { id: newId, text: text };
     setMyText([...myText, newTextData]);
@@ -178,11 +183,6 @@ function Text() {
       presence_penalty: 1,
     };
 
-    // const APIBody = {
-    //   model: "gpt-3.5-turbo",
-    //   messages: [{ role: "user", content: "Say this is a test!" }],
-    //   temperature: 0.7,
-    // };
     await fetch("https://api.openai.com/v1/completions", {
       method: "POST",
       headers: {
@@ -229,6 +229,32 @@ function Text() {
     // resetData();
   }, [botType]);
 
+  ///////////////// ///speech to text///////////////////////////////
+  useEffect(() => {
+    handleListen();
+  }, [isListening]);
+
+  const handleListen = () => {
+    if (isListening) {
+      mic.start();
+      mic.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join("");
+        setNote(transcript);
+      };
+    } else {
+      mic.stop();
+    }
+  };
+
+  useEffect(() => {
+    if (typeof note === "string") {
+      setText(note);
+    }
+  }, [note]);
+
   return (
     <GetEmotionWrapper>
       <ButtonsHeader>
@@ -271,9 +297,13 @@ function Text() {
         <button onClick={callOpenApi} disabled={isLoading}>
           Send
         </button>
+
+        <button onClick={() => setIsListening((prev) => !prev)}>
+          {isListening ? "🛑" : "🎙️"}
+        </button>
       </GetEmotionForm>
     </GetEmotionWrapper>
   );
 }
 
-export default Text;
+export default Chat;
