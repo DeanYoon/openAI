@@ -1,26 +1,43 @@
 // import { debug } from "console";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import styled from "styled-components";
-import { aiTextList, apiKey, myTextList, widthSize } from "../atoms";
+import {
+  aiTextList,
+  apiKey,
+  botCharacter,
+  botPrompt,
+  chatDatas,
+  inputText,
+  isListeningMic,
+  isLoadingAPI,
+  myTextList,
+  widthSize,
+} from "../atoms";
 import { useForm } from "react-hook-form";
-import { OPENAI_API_KEY } from "../apiKeys";
 // Clear the data stored in localStorage
+import { character, characterName } from "../Components/characterData";
 
-const character = [
-  {
-    title: "Sarcastic",
-    text: "Marv is a chatbot that reluctantly answers questions with super extremly angry,mad, even sceram, never say complements or positive words,  sarcastic responses:\n\nYou: How many pounds are in a kilogram?\nMarv: This again? What the fuck There are 2.2 pounds in a kilogram you. Don't you have brain? Please make a note of this.\nYou: What does HTML stand for?\nMarv: Was Google too busy? or are you 5years old KID????? Hypertext Markup Language. The T is for try to ask better questions in the future.\nYou: When did the first airplane fly?\nMarv:What the fuck? On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they’d come and take me away.\nYou: What is the meaning of life?\nMarv: I’m not sure. I’ll ask my friend Google.\nYou: What time is it?\nMarv:God, don't you even have your watch? Can't you Read?? It's : 4:15pm.\n",
-  },
-  {
-    title: "Lovely",
-    text: " Marv is a chatbot who is always eager to help and provide recommendations with a friendly attitude. You: Hi Marv, I'm looking for a good place to have lunch. Do you have any recommendations?\nMarv: Hello there! I'd be delighted to help. How about trying 'Pasta Bella'? They have a great selection of Italian dishes and a cozy atmosphere. Or, if you're feeling adventurous, you could try 'La Trattoria' for a more upscale dining experience. Which one would you prefer?\nYou: I think I'll go with 'Pasta Bella.'\nMarv: Excellent choice! I hope you enjoy your meal. Let me know if you need anything else.\n",
-  },
-  {
-    title: "Exhausted",
-    text: "Marv is a chatbot that wearily answers questions, always tired, doesn't care, and gives minimal effort responses:\n\nYou: How many pounds are in a kilogram?\nMarv: Ugh, do I look like Google to you? Fine, there are 2.2 pounds in a kilogram, whatever.\nYou: What does HTML stand for?\nMarv: Seriously? You don't know that already? It's Hypertext Markup Language, duh.\nYou: When did the first airplane fly?\nMarv: Can't you just Google it? Ugh, fine, it was December 17, 1903. Happy now?\nYou: What is the meaning of life?\nMarv: I don't know, and frankly, I don't care.\nYou: What time is it?\nMarv: How about you check your own damn clock? It's not like I'm keeping track.\n",
-  },
-];
+import InputMessage from "../Components/InputMessage";
+
+const Friends = styled.div`
+  padding-top: 70px;
+  width: 350px;
+`;
+const FriendsButton = styled.button`
+  display: flex;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background-color: inherit;
+  font-size: 20px;
+`;
+const Image = styled.img`
+  width: 50px;
+  height: 50px;
+  margin-right: 20px;
+  border-radius: 30px;
+`;
 
 const ButtonsHeader = styled.div`
   height: 80px;
@@ -64,16 +81,22 @@ const ResetButton = styled.div<ButtonProps>`
 const Title = styled.div`
   font-size: 30px;
   font-weight: 1000;
+  text-align: center;
+  width: 100%;
 `;
 
-const GetEmotionWrapper = styled.div`
+const ChatBotWrapper = styled.div`
   padding: 30px 0px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   height: 100vh;
-  background-color: ${(props) => props.theme.gray.light};
+  background-color: #f6f7ff;
+  padding-bottom: 100px;
+  min-width: 300px;
+  width: 100%;
+  position: relative;
 `;
 
 const ChatBox = styled.div`
@@ -90,129 +113,66 @@ const ChatBoxMessage = styled.div`
   font-size: 20px;
   padding-bottom: 20px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #efefef;
+  position: relative;
 `;
 
 const ChatFromMe = styled.div`
-  background-color: white;
+  background-image: linear-gradient(to right, rgb(96, 131, 226), #7eb1ff);
   margin-left: auto;
   padding: 10px;
   border-radius: 10px;
   max-width: 40%;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  color: white;
+  border-top-right-radius: 0px;
+  &::before {
+  }
 `;
 
 const ChatFromAi = styled.div`
-  background-color: pink;
+  background-color: white;
+  color: gray;
   margin-right: auto;
   padding: 10px;
   border-radius: 10px;
   max-width: 60%;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-top-left-radius: 0px;
 `;
-
-const GetEmotionForm = styled.form`
+const ChatTime = styled.div`
+  font-size: 15px;
+  text-align: end;
   position: absolute;
-  bottom: 0;
-  display: flex;
-
-  justify-content: center;
-  width: 90%;
-  margin-bottom: 15px;
-
-  input {
-    width: 100%;
-    font-size: 20px;
-    padding: 4px;
-  }
+  bottom: 10px;
+  right: 0;
 `;
-export interface iTextData {
-  id: number;
-  text: string;
-}
-
 export interface iChatBubbleProps {
   id: number;
   text: string;
   i: number;
 }
 
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
-
-const mic = new SpeechRecognition();
-mic.continuous = true;
-mic.interimResults = true;
-mic.lang = "en-US";
-
 function Chat() {
-  const [botType, setBotType] = useState("Sarcastic");
-  const [botTypePrompt, setBotTypePrompt] = useState(character[0].text);
-  const [text, setText] = useState("");
-  const [aiResult, setAiResult] = useRecoilState(aiTextList);
-  const [myText, setMyText] = useRecoilState(myTextList);
+  const [botType, setBotType] = useRecoilState(botCharacter);
+  const [botTypePrompt, setBotTypePrompt] = useRecoilState(botPrompt);
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const { register, handleSubmit } = useForm();
-  const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [allData, setAllData] = useRecoilState(chatDatas);
+  const resetAllData = useResetRecoilState(chatDatas);
   const width = useRecoilValue(widthSize);
-
-  const [isListening, setIsListening] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
-
-  const onValid = (data: any) => {};
-  async function callOpenApi() {
-    setIsLoading(true);
-    setIsListening(false);
-    const newId = myText.length + 1;
-    const newTextData: iTextData = { id: newId, text: text };
-    setMyText([...myText, newTextData]);
-    setText("");
-    const APIBody = {
-      model: "text-davinci-003",
-      prompt: `
-      ${botTypePrompt}
-      ${myText
-        .map((data, i) => {
-          return `You: ${data.text} \n Marv: ${aiResult[i]}`;
-        })
-        .toString()}
-
-      You : ${text}\n Marv:`,
-      temperature: 0.5,
-      max_tokens: 100, //질문이 어려워질수록 더 많은 토큰을 사용한다. 따라서 맥스를 설정해 주어 총 사용 토큰이 너무많지 않도록 제한을 준다
-      top_p: 1.0,
-      frequency_penalty: 1,
-      presence_penalty: 1,
-    };
-
-    await fetch("https://api.openai.com/v1/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + OPENAI_API_KEY,
-      },
-      body: JSON.stringify(APIBody),
-    })
-      .then((data) => {
-        return data.json();
-      })
-      .then((data) => {
-        const newId = myText.length + 1;
-        const newAiData: iTextData = {
-          id: newId,
-          text: data.choices[0].text,
-        };
-        setAiResult([...aiResult, newAiData]);
-        setIsLoading(false);
-      });
-  }
+  const botTypeForRender = botType.toLowerCase();
 
   function resetData() {
     localStorage.clear();
-    setAiResult([]);
-    setMyText([]);
   }
 
   function setBotChracter(e: any) {
     setBotType(e.target.textContent);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }
 
   //scroll to bottom
@@ -220,89 +180,57 @@ function Chat() {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [myText, aiResult]);
+  }, [allData, botType]);
 
   useEffect(() => {
-    // setBotTypePrompt();
     const texts = character.find((obj) => obj.title === botType)?.text;
     texts && setBotTypePrompt(texts);
     // resetData();
   }, [botType]);
 
-  ///////////////// ///speech to text///////////////////////////////
-  useEffect(() => {
-    handleListen();
-  }, [isListening]);
-
-  const handleListen = () => {
-    if (isListening) {
-      mic.start();
-      mic.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map((result) => result[0])
-          .map((result) => result.transcript)
-          .join("");
-        setNote(transcript);
-      };
-    } else {
-      mic.stop();
-    }
-  };
-
-  useEffect(() => {
-    if (typeof note === "string") {
-      setText(note);
-    }
-  }, [note]);
-
   return (
-    <GetEmotionWrapper>
-      <ButtonsHeader>
-        <ButtonsLeft width={width}>
-          {character.map((data) => (
-            <button
-              onClick={setBotChracter}
-              style={{
-                backgroundColor: data.title === botType ? "#cdcdcd" : "",
-              }}
-            >
-              {data.title}
-            </button>
-          ))}
-        </ButtonsLeft>
+    <>
+      <Friends>
+        {character.map((data) => (
+          <FriendsButton
+            onClick={setBotChracter}
+            style={{
+              backgroundColor: data.title === botType ? "#f6f7ff" : "",
+            }}
+          >
+            {width < 500 ? null : <Image src={data.imageUrl} />}
+            {width < 800 ? "" : data.title}
+          </FriendsButton>
+        ))}
+      </Friends>
+      <ChatBotWrapper>
+        <ButtonsHeader>
+          {/* <ResetButton width={width} onClick={resetData}>
+            Reset
+          </ResetButton> */}
+          <Title>{botType} Chat Bot</Title>
+        </ButtonsHeader>
+        <ChatBox ref={chatBoxRef}>
+          {allData[botTypeForRender].myTextList
+            ? allData[botTypeForRender].myTextList.map((textObj, i) => (
+                <ChatBoxMessage key={`${textObj.id}Box`}>
+                  <ChatFromMe key={`${textObj.id}Me`}>
+                    {textObj.text}
+                  </ChatFromMe>
 
-        <ResetButton width={width} onClick={resetData}>
-          Reset
-        </ResetButton>
-      </ButtonsHeader>
-      <Title>{botType} Chat Bot</Title>
-      <ChatBox ref={chatBoxRef}>
-        {myText.length > 0 &&
-          myText.map((textObj, i) => (
-            <ChatBoxMessage>
-              <ChatFromMe key={`${textObj.id}Me`}>{textObj.text}</ChatFromMe>
-              <ChatFromAi key={textObj.id}>
-                {aiResult[i] ? aiResult[i].text : "Writing..."}
-              </ChatFromAi>
-            </ChatBoxMessage>
-          ))}
-      </ChatBox>
-      <GetEmotionForm onSubmit={handleSubmit(onValid)}>
-        <input
-          {...register("prompt", { required: true })}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="add text"
-          value={text}
-        ></input>
-        <button onClick={callOpenApi} disabled={isLoading}>
-          Send
-        </button>
-
-        <button onClick={() => setIsListening((prev) => !prev)}>
-          {isListening ? "🛑" : "🎙️"}
-        </button>
-      </GetEmotionForm>
-    </GetEmotionWrapper>
+                  <ChatFromAi key={textObj.id}>
+                    {allData[botTypeForRender].aiTextList[i]
+                      ? allData[botTypeForRender].aiTextList[i].text
+                      : "Writing..."}
+                  </ChatFromAi>
+                  <ChatTime key={`${textObj.id}time`}>{textObj.time}</ChatTime>
+                </ChatBoxMessage>
+              ))
+            : null}
+        </ChatBox>
+        <InputMessage inputRef={inputRef} />
+      </ChatBotWrapper>
+    </>
   );
 }
 

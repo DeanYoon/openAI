@@ -1,27 +1,15 @@
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
+import { character } from "./Components/characterData";
 const { persistAtom } = recoilPersist();
 
-export interface iTextData {
-  id: number;
-  text: string;
-}
-
-export interface iChatBubbleProps {
-  id: number;
-  text: string;
-  i: number;
-}
-
-export const myTextList = atom<iTextData[]>({
+export const myTextList = atom<ITextData[]>({
   key: "myText",
   default: [],
-  effects_UNSTABLE: [persistAtom],
 });
-export const aiTextList = atom<iTextData[]>({
+export const aiTextList = atom<ITextData[]>({
   key: "aiText",
   default: [],
-  effects_UNSTABLE: [persistAtom],
 });
 
 export const widthSize = atom({
@@ -36,5 +24,61 @@ export interface iApiKey {
 export const apiKey = atom({
   key: "apiKey",
   default: "",
+  effects_UNSTABLE: [persistAtom],
+});
+
+export const inputText = atom({
+  key: "inputText",
+  default: "",
+});
+
+export const isLoadingAPI = atom({
+  key: "isLoadingAPI",
+  default: false,
+});
+export const isListeningMic = atom({
+  key: "isListeningMic",
+  default: false,
+});
+
+export const botPrompt = atom({
+  key: "botPrompt",
+  default: character[0].text,
+});
+
+export const botCharacter = atom({
+  key: "botType",
+  default: character[0].title,
+});
+export interface ITextData {
+  id: number;
+  text: string;
+  time: string;
+}
+
+export interface IChatData {
+  myTextList: ITextData[];
+  aiTextList: ITextData[];
+}
+interface IAllData {
+  [key: string]: IChatData;
+}
+
+export const chatDatas = atom<IAllData>({
+  key: "chatData",
+  default: {
+    sarcastic: {
+      myTextList: [],
+      aiTextList: [],
+    },
+    lovely: {
+      myTextList: [],
+      aiTextList: [],
+    },
+    exhausted: {
+      myTextList: [],
+      aiTextList: [],
+    },
+  },
   effects_UNSTABLE: [persistAtom],
 });
