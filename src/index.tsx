@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
-import { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import App from "./App";
 import { theme } from "./theme";
 import { createGlobalStyle } from "styled-components";
@@ -65,6 +65,11 @@ body {
   color:black;
   line-height: 1.2;
   width: 100vw;
+  box-sizing: border-box;
+  height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
 a {
