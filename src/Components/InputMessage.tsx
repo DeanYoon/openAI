@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
-  aiTextList,
   botCharacter,
   botPrompt,
   chatDatas,
@@ -10,17 +9,16 @@ import {
   isListeningMic,
   isLoadingAPI,
   ITextData,
-  myTextList,
 } from "../atoms";
 import { OPENAI_API_KEY } from "../apiKeys";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMicrophone,
   faMicrophoneSlash,
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
-
+import { characterName } from "./characterData";
 const ChatBotForm = styled.form`
   bottom: 0;
   display: flex;
@@ -31,6 +29,7 @@ const ChatBotForm = styled.form`
   input {
     font-size: 20px;
     padding: 4px;
+    padding-left: 20px;
     width: 100%;
     border: none;
     height: 40px;
@@ -41,6 +40,9 @@ const ChatBotForm = styled.form`
     &:focus {
       outline: none;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+    &::placeholder {
+      font-size: 15px;
     }
   }
   button {
@@ -53,11 +55,32 @@ const ChatBotForm = styled.form`
 
 const Buttons = styled.div`
   display: flex;
+  justify-content: space-between;
   position: absolute;
-  right: 23px;
+  width: 80px;
+  right: 30px;
   top: 8px;
+
+  button {
+    background-color: inherit;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
+const SendButton = styled.button``;
+const MicButton = styled.button``;
+
+const LanguageSelect = styled.select`
+  appearance: none;
+  padding: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  background-color: inherit;
+`;
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -65,22 +88,25 @@ const mic = new SpeechRecognition();
 mic.continuous = true;
 mic.interimResults = true;
 mic.lang = "en-US";
-
-type InputProps = {
-  inputRef: React.RefObject<HTMLInputElement>;
-};
-const InputMessage = ({ inputRef }: InputProps) => {
+const languages = [
+  { label: "En", value: "en-US" },
+  { label: "Kr", value: "ko-KR" },
+  { label: "Jp", value: "ja-JP" },
+  // add more languages here
+];
+const InputMessage = () => {
   const { register, handleSubmit } = useForm();
   const [text, setText] = useRecoilState(inputText);
   const [isLoading, setIsLoading] = useRecoilState(isLoadingAPI);
   const [isListening, setIsListening] = useRecoilState(isListeningMic);
-  const [myText, setMyText] = useRecoilState(myTextList);
-  const [aiResult, setAiResult] = useRecoilState(aiTextList);
   const botTypePrompt = useRecoilValue(botPrompt);
   const [note, setNote] = useState<string | null>(null);
   const [allData, setAllData] = useRecoilState(chatDatas);
   const [botType, setBotType] = useRecoilState(botCharacter);
+  const inputRef = useRef<HTMLInputElement>(null);
   const category = botType.toLowerCase();
+  const [currentLanguage, setCurrentLanguage] = useState(languages[0].value);
+
   function getTimeNow() {
     const now = new Date();
     const formattedTime = now.toLocaleTimeString([], {
@@ -92,35 +118,41 @@ const InputMessage = ({ inputRef }: InputProps) => {
     return formattedTime;
   }
 
-  const addDataFromMe = (category: string, text: string, time: string) => {
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [botType, currentLanguage]);
+
+  const addData = (
+    category: string,
+    text: string,
+    time: string,
+    fromMe: boolean
+  ) => {
     setAllData((prevData) => ({
       ...prevData,
       [category]: {
-        myTextList: [
-          ...prevData[category].myTextList,
-          {
-            id: prevData[category].myTextList.length + 1,
-            text,
-            time,
-          },
-        ],
-        aiTextList: [...prevData[category].aiTextList],
-      },
-    }));
-  };
-  const addDataFromAI = (category: string, text: string, time: string) => {
-    setAllData((prevData) => ({
-      ...prevData,
-      [category]: {
-        myTextList: [...prevData[category].myTextList],
-        aiTextList: [
-          ...prevData[category].aiTextList,
-          {
-            id: prevData[category].aiTextList.length + 1,
-            text,
-            time,
-          },
-        ],
+        myTextList: fromMe
+          ? [
+              ...prevData[category].myTextList,
+              {
+                id: prevData[category].myTextList.length + 1,
+                text,
+                time,
+              },
+            ]
+          : [...prevData[category].myTextList],
+        aiTextList: fromMe
+          ? [...prevData[category].aiTextList]
+          : [
+              ...prevData[category].aiTextList,
+              {
+                id: prevData[category].aiTextList.length + 1,
+                text,
+                time,
+              },
+            ],
       },
     }));
   };
@@ -129,19 +161,22 @@ const InputMessage = ({ inputRef }: InputProps) => {
   async function callOpenApi() {
     setIsLoading(true);
     setIsListening(false);
-    addDataFromMe(category, text, getTimeNow());
+    addData(category, text, getTimeNow(), true);
     setText("");
     const APIBody = {
       model: "text-davinci-003",
       prompt: `
       ${botTypePrompt}
-      ${myText
-        .map((data, i) => {
-          return `You: ${data.text} \n Marv: ${aiResult[i]}`;
-        })
-        .toString()}
+      ${
+        category !== "translation" &&
+        allData[category].myTextList
+          .map((data, i) => {
+            return `You: ${data.text} \n ${characterName}: ${allData[category].aiTextList[i]}`;
+          })
+          .toString()
+      }
 
-      You : ${text}\n Marv:`,
+      You : ${text}\n ${characterName}:`,
       temperature: 0.5,
       max_tokens: 100, //질문이 어려워질수록 더 많은 토큰을 사용한다. 따라서 맥스를 설정해 주어 총 사용 토큰이 너무많지 않도록 제한을 준다
       top_p: 1.0,
@@ -161,17 +196,19 @@ const InputMessage = ({ inputRef }: InputProps) => {
         return data.json();
       })
       .then((data) => {
-        const newId = myText.length + 1;
-        const newAiData: ITextData = {
-          id: newId,
-          text: data.choices[0].text,
-          time: getTimeNow(),
-        };
-        setAiResult([...aiResult, newAiData]);
-        addDataFromAI(category, data.choices[0].text, getTimeNow());
+        addData(category, data.choices[0].text, getTimeNow(), false);
         setIsLoading(false);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+        addData(
+          category,
+          "failed to load text from ChatGPT",
+          getTimeNow(),
+          false
+        );
+        setIsLoading(false);
+      });
   }
 
   ///////////////// ///speech to text///////////////////////////////
@@ -199,6 +236,12 @@ const InputMessage = ({ inputRef }: InputProps) => {
       setText(note);
     }
   }, [note]);
+  const handleChange = (event: any) => {
+    setCurrentLanguage(event.target.value);
+  };
+  useEffect(() => {
+    mic.lang = currentLanguage;
+  }, [currentLanguage]);
   return (
     <ChatBotForm onSubmit={handleSubmit(onValid)}>
       <input
@@ -207,16 +250,24 @@ const InputMessage = ({ inputRef }: InputProps) => {
         placeholder="add text"
         value={text}
         autoComplete="off"
+        ref={inputRef}
       ></input>
       <Buttons>
-        <button onClick={callOpenApi} disabled={isLoading}>
+        <SendButton onClick={callOpenApi} disabled={isLoading}>
           <FontAwesomeIcon icon={faPaperPlane} />
-        </button>
-        <button onClick={() => setIsListening((prev) => !prev)}>
+        </SendButton>
+        <MicButton onClick={() => setIsListening((prev) => !prev)}>
           <FontAwesomeIcon
             icon={isListening ? faMicrophoneSlash : faMicrophone}
           />
-        </button>
+        </MicButton>
+        <LanguageSelect value={currentLanguage} onChange={handleChange}>
+          {languages.map((language) => (
+            <option key={language.value} value={language.value}>
+              {language.label}
+            </option>
+          ))}
+        </LanguageSelect>
       </Buttons>
     </ChatBotForm>
   );
