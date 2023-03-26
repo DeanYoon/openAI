@@ -5,7 +5,9 @@ import Image from "./Routes/Image";
 import Navigate from "./Components/Navigate";
 import styled from "styled-components";
 import { useRecoilValue } from "recoil";
-import { widthSize } from "./atoms";
+import { loginState, UserData, widthSize } from "./atoms";
+import Athentication from "./Routes/Athentication";
+import Header from "./Components/Header";
 
 const Main = styled.div`
   width: 90vw;
@@ -17,59 +19,22 @@ const Main = styled.div`
   display: flex;
   position: relative;
 `;
-const Header = styled.div`
-  position: absolute;
-  width: inherit;
-  height: 70px;
-  background-color: white;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-`;
-
-const ButtonBox = styled.div`
-  width: 100px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 15px;
-`;
-const Button = styled.div`
-  width: 15px;
-  height: 15px;
-  border-radius: 15px;
-  background-color: ${(props) => props.color};
-`;
-const UserIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 1px solid black;
-  border-radius: 30px;
-  margin-right: 10px;
-`;
 
 function App() {
   const width = useRecoilValue(widthSize);
+  const isLoggedIn = useRecoilValue(loginState);
   return (
     <BrowserRouter>
       <Main>
         {width < 500 ? null : <Navigate />}
-        <Header>
-          <ButtonBox>
-            <Button color="#FF605C"></Button>
-            <Button color="#FFBD44"></Button>
-            <Button color="#00CA4E"></Button>
-          </ButtonBox>
-          <UserIcon />
-        </Header>
+        <Header />
         <Routes>
           <Route path="/openAI/" element={<Home />}></Route>
-          <Route path="/openAI/chat" element={<Chat />}></Route>
-          <Route path="/openAI/image" element={<Image />}></Route>
+          <Route
+            path="/openAI/chat"
+            element={isLoggedIn ? <Chat /> : <Home />}
+          ></Route>
+          <Route path="/kakao-login" element={<Athentication />}></Route>
         </Routes>
       </Main>
     </BrowserRouter>

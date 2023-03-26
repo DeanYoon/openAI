@@ -8,6 +8,7 @@ import {
   faCubes,
   faGear,
   faHome,
+  faMessage,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 const Nav = styled.div`
@@ -59,7 +60,7 @@ function Navigate() {
         </Link>
         <Link to="/openAI/chat">
           <Item>
-            <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>
+            <FontAwesomeIcon icon={faMessage}></FontAwesomeIcon>
           </Item>
         </Link>
         <Link to="/openAI/more">
