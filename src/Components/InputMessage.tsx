@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
+
 import {
   botCharacter,
   botPrompt,
@@ -8,6 +9,7 @@ import {
   inputText,
   isListeningMic,
   isLoadingAPI,
+  isSoundOn,
   ITextData,
 } from "../atoms";
 import { OPENAI_API_KEY } from "../apiKeys";
@@ -19,6 +21,7 @@ import {
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 import { characterName } from "./characterData";
+
 const ChatBotForm = styled.form`
   bottom: 0;
   display: flex;
@@ -36,6 +39,7 @@ const ChatBotForm = styled.form`
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 3px;
     transition: all 0.3s ease-in-out;
+    padding-right: 100px;
 
     &:focus {
       outline: none;
@@ -81,9 +85,11 @@ const LanguageSelect = styled.select`
   font-size: 10px;
   background-color: inherit;
 `;
+
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
+const voices = speechSynthesis.getVoices();
 const mic = new SpeechRecognition();
 mic.continuous = true;
 mic.interimResults = true;
@@ -92,21 +98,24 @@ const languages = [
   { label: "En", value: "en-US" },
   { label: "Kr", value: "ko-KR" },
   { label: "Jp", value: "ja-JP" },
+  { label: "Zh", value: "zh-CN" },
   // add more languages here
 ];
+
 const InputMessage = () => {
   const { register, handleSubmit } = useForm();
   const [text, setText] = useRecoilState(inputText);
   const [isLoading, setIsLoading] = useRecoilState(isLoadingAPI);
   const [isListening, setIsListening] = useRecoilState(isListeningMic);
-  const botTypePrompt = useRecoilValue(botPrompt);
   const [note, setNote] = useState<string | null>(null);
+  const [aiAnswer, setAiAnswer] = useState("");
   const [allData, setAllData] = useRecoilState(chatDatas);
+  const botTypePrompt = useRecoilValue(botPrompt);
   const [botType, setBotType] = useRecoilState(botCharacter);
+  const isSound = useRecoilValue(isSoundOn);
   const inputRef = useRef<HTMLInputElement>(null);
   const category = botType.toLowerCase();
   const [currentLanguage, setCurrentLanguage] = useState(languages[0].value);
-
   function getTimeNow() {
     const now = new Date();
     const formattedTime = now.toLocaleTimeString([], {
@@ -196,8 +205,11 @@ const InputMessage = () => {
         return data.json();
       })
       .then((data) => {
-        addData(category, data.choices[0].text, getTimeNow(), false);
+        let answerFromOpenAI: string = data.choices[0].text;
+        answerFromOpenAI = answerFromOpenAI.replace("[object Object],", "");
+        addData(category, answerFromOpenAI, getTimeNow(), false);
         setIsLoading(false);
+        setAiAnswer(answerFromOpenAI);
       })
       .catch((error) => {
         console.log(error);
@@ -242,6 +254,22 @@ const InputMessage = () => {
   useEffect(() => {
     mic.lang = currentLanguage;
   }, [currentLanguage]);
+
+  /////////////// Text to Speech //////////////////////
+
+  useEffect(() => {
+    if (isSound) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(aiAnswer);
+      utterance.lang = currentLanguage;
+      utterance.voice = voices.filter(
+        (voice) => voice.lang === currentLanguage
+      )[22]; //22
+      utterance.volume = 0.7;
+      utterance.rate = 1.1;
+      synth.speak(utterance);
+    }
+  }, [aiAnswer]);
   return (
     <ChatBotForm onSubmit={handleSubmit(onValid)}>
       <input

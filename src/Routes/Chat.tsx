@@ -1,22 +1,18 @@
 // import { debug } from "console";
+import { faVolumeHigh, faVolumeXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
-  aiTextList,
-  apiKey,
   botCharacter,
   botPrompt,
   chatDatas,
-  inputText,
-  isListeningMic,
-  isLoadingAPI,
-  myTextList,
+  isSoundOn,
   widthSize,
 } from "../atoms";
-import { useForm } from "react-hook-form";
 // Clear the data stored in localStorage
-import { character, characterName } from "../Components/characterData";
+import { character } from "../Components/characterData";
 
 import InputMessage from "../Components/InputMessage";
 
@@ -37,9 +33,10 @@ const Image = styled.img`
   height: 50px;
   margin-right: 20px;
   border-radius: 30px;
+  pointer-events: none;
 `;
 
-const ButtonsHeader = styled.div`
+const ChatHeader = styled.div`
   height: 80px;
   width: 100%;
   margin-top: 40px;
@@ -47,22 +44,19 @@ const ButtonsHeader = styled.div`
   padding: 20px 10px 0 10px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 interface ButtonProps {
   width: number;
 }
-const ButtonsLeft = styled.div<ButtonProps>`
-  width: 100%;
+
+const SoundToggleBtn = styled.div`
+  width: 30px;
+
   display: flex;
-  justify-content: ${(props) => (props.width > 500 ? "none" : "space-between")};
-  button {
-    width: 20%;
-    min-width: 60px;
-    margin: 0 ${(props) => (props.width > 500 ? "10px" : "0px")};
-    height: 100%;
-    border-radius: 20px;
-    font-size: ${(props) => (props.width > 500 ? "20px" : "10px")};
-  }
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
 `;
 const ResetButton = styled.div<ButtonProps>`
   display: flex;
@@ -126,8 +120,6 @@ const ChatFromMe = styled.div`
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   color: white;
   border-top-right-radius: 0px;
-  &::before {
-  }
 `;
 
 const ChatFromAi = styled.div`
@@ -157,11 +149,12 @@ export interface iChatBubbleProps {
 function Chat() {
   const [botType, setBotType] = useRecoilState(botCharacter);
   const [botTypePrompt, setBotTypePrompt] = useRecoilState(botPrompt);
-  const chatBoxRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [allData, setAllData] = useRecoilState(chatDatas);
+  const allData = useRecoilValue(chatDatas);
   const resetAllData = useResetRecoilState(chatDatas);
   const width = useRecoilValue(widthSize);
+  const [isSound, setIsSound] = useRecoilState(isSoundOn);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const botTypeForRender = botType.toLowerCase();
 
   function resetData() {
@@ -185,6 +178,7 @@ function Chat() {
   useEffect(() => {
     const texts = character.find((obj) => obj.title === botType)?.text;
     texts && setBotTypePrompt(texts);
+
     // resetData();
   }, [botType]);
 
@@ -195,7 +189,7 @@ function Chat() {
           <FriendsButton
             onClick={setBotChracter}
             style={{
-              backgroundColor: data.title === botType ? "#f6f7ff" : "",
+              backgroundColor: data.title === botType ? "#f6f7ff" : "inherit",
             }}
           >
             {width < 500 ? null : <Image src={data.imageUrl} />}
@@ -204,12 +198,15 @@ function Chat() {
         ))}
       </Friends>
       <ChatBotWrapper>
-        <ButtonsHeader>
+        <ChatHeader>
           {/* <ResetButton width={width} onClick={resetData}>
             Reset
           </ResetButton> */}
           <Title>{botType} Chat Bot</Title>
-        </ButtonsHeader>
+          <SoundToggleBtn onClick={() => setIsSound((prev: boolean) => !prev)}>
+            <FontAwesomeIcon icon={isSound ? faVolumeHigh : faVolumeXmark} />
+          </SoundToggleBtn>
+        </ChatHeader>
         <ChatBox ref={chatBoxRef}>
           {allData[botTypeForRender].myTextList
             ? allData[botTypeForRender].myTextList.map((textObj, i) => (
@@ -228,7 +225,7 @@ function Chat() {
               ))
             : null}
         </ChatBox>
-        <InputMessage inputRef={inputRef} />
+        <InputMessage />
       </ChatBotWrapper>
     </>
   );
