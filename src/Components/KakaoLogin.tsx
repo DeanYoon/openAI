@@ -5,7 +5,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import styled from "styled-components";
-import { loginState, UserData } from "../atoms";
+import {
+  allUserData,
+  initialChatData,
+  loginState,
+  savedJwt,
+  UserData,
+} from "../atoms";
+import { generateToken } from "../services/auth";
+import Cookies from "js-cookie";
+import { character } from "./characterData";
 
 const KakaoIcon = styled(FontAwesomeIcon)`
   scale: 1.3;
@@ -63,7 +72,9 @@ export interface IUserData {
 export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(loginState);
   const navigate = useNavigate();
-  const [userData, setUserData] = useRecoilState<IUserData>(UserData);
+  const [userData, setUserData] = useRecoilState(UserData);
+  const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
+  const [jwt, setJwt] = useRecoilState(savedJwt);
   useEffect(() => {
     const baseUrl = "https://kauth.kakao.com/oauth/token";
     const config = {
@@ -116,8 +127,50 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
 
         //Session Storage에 userdata 저장
         sessionStorage.setItem("userData", JSON.stringify(loggedInUserData));
+        const jwt = generateToken(loggedInUserData);
+        setJwt(jwt);
+        //save jwt in HTTP Only Cookie
+        Cookies.set("jwt", jwt, { httpOnly: true, sameSite: "strict" });
+
+        //if user exists, get data, if not, create new data
+        axios
+          .get(`http://localhost:4000/users/${loggedInUserData.id}`, {
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+            },
+          })
+          .then((response) => {
+            // If user exists, get the data using the GET method
+            setAllUserDatas(response.data);
+          })
+          .catch((error) => {
+            // If user does not exist, create new user using the POST method
+            const initialData = {
+              id: loggedInUserData.id,
+              profileUrl: loggedInUserData.profile_image,
+              username: loggedInUserData.nickname,
+              chatData: Object.fromEntries(
+                character.map(({ title }) => [
+                  title.toLowerCase(),
+                  initialChatData,
+                ])
+              ),
+            };
+            axios
+              .post("http://localhost:4000/users", initialData, {
+                headers: {
+                  Authorization: `Bearer ${jwt}`,
+                },
+              })
+              .then((response) => {
+                setAllUserDatas(response.data);
+              })
+              .catch((error) => console.log(error));
+          });
+
         setIsLoggedIn(true);
-        navigate("/openAI");
+
+        navigate("/openAI/chat");
       }
     };
     fetchKakaoData();
