@@ -75,18 +75,45 @@ export interface IChatData {
   myTextList: ITextData[];
   aiTextList: ITextData[];
 }
-interface IAllData {
+interface IAllChatData {
   [key: string]: IChatData;
 }
-const initialChatData = {
+export interface IUser {
+  id: number;
+  username: string;
+  profileUrl: string;
+  chatData: IAllChatData;
+}
+
+export const initialChatData = {
   myTextList: [],
   aiTextList: [],
 };
 
-export const chatDatas = atom<IAllData>({
+const initialUserData = {
+  id: 1,
+  username: "윤재승",
+  profileUrl: "/",
+  chatData: Object.fromEntries(
+    character.map(({ title }) => [title.toLowerCase(), initialChatData])
+  ),
+};
+
+export const chatDatas = atom<IAllChatData>({
   key: "chatDatas",
   default: Object.fromEntries(
     character.map(({ title }) => [title.toLowerCase(), initialChatData])
   ),
   effects_UNSTABLE: [persistAtom],
+});
+
+export const allUserData = atom<IUser>({
+  key: "allUserData",
+  default: initialUserData,
+  effects_UNSTABLE: [persistAtom],
+});
+
+export const savedJwt = atom({
+  key: "jwt",
+  default: "",
 });

@@ -3,6 +3,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 
 import {
+  allUserData,
   botCharacter,
   botPrompt,
   chatDatas,
@@ -11,6 +12,9 @@ import {
   isLoadingAPI,
   isSoundOn,
   ITextData,
+  IUser,
+  savedJwt,
+  UserData,
 } from "../atoms";
 import { OPENAI_API_KEY } from "../apiKeys";
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +25,7 @@ import {
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 import { characterName } from "./characterData";
+import axios from "axios";
 
 const ChatBotForm = styled.form`
   bottom: 0;
@@ -109,13 +114,16 @@ const InputMessage = () => {
   const [isListening, setIsListening] = useRecoilState(isListeningMic);
   const [note, setNote] = useState<string | null>(null);
   const [aiAnswer, setAiAnswer] = useState("");
-  const [allData, setAllData] = useRecoilState(chatDatas);
+
   const botTypePrompt = useRecoilValue(botPrompt);
   const [botType, setBotType] = useRecoilState(botCharacter);
   const isSound = useRecoilValue(isSoundOn);
   const inputRef = useRef<HTMLInputElement>(null);
   const category = botType.toLowerCase();
   const [currentLanguage, setCurrentLanguage] = useState(languages[0].value);
+  const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
+  const loggedInUser = useRecoilValue(UserData);
+  const jwt = useRecoilValue(savedJwt);
   function getTimeNow() {
     const now = new Date();
     const formattedTime = now.toLocaleTimeString([], {
@@ -128,49 +136,62 @@ const InputMessage = () => {
   }
 
   useEffect(() => {
+    axios
+      .put(`http://localhost:4000/users/${loggedInUser.id}`, allUserDatas, {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      })
+      .then((response) => {
+        console.log("Data Saved");
+      })
+      .catch((error) => {
+        console.log("Fail to save new data", error);
+      });
+  }, [allUserDatas]);
+
+  useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [botType, currentLanguage]);
 
-  const addData = (
+  const addNewData = (
     category: string,
     text: string,
     time: string,
     fromMe: boolean
   ) => {
-    setAllData((prevData) => ({
-      ...prevData,
-      [category]: {
-        myTextList: fromMe
-          ? [
-              ...prevData[category].myTextList,
-              {
-                id: prevData[category].myTextList.length + 1,
-                text,
-                time,
-              },
-            ]
-          : [...prevData[category].myTextList],
-        aiTextList: fromMe
-          ? [...prevData[category].aiTextList]
-          : [
-              ...prevData[category].aiTextList,
-              {
-                id: prevData[category].aiTextList.length + 1,
-                text,
-                time,
-              },
-            ],
-      },
-    }));
+    setAllUserDatas((prevData) => {
+      const newData = {
+        id: fromMe
+          ? prevData.chatData[category].myTextList.length + 1
+          : prevData.chatData[category].aiTextList.length + 1,
+        text,
+        time,
+      };
+      return {
+        ...prevData,
+        chatData: {
+          ...prevData.chatData,
+          [category]: {
+            myTextList: fromMe
+              ? [...prevData.chatData[category].myTextList, newData]
+              : prevData.chatData[category].myTextList,
+            aiTextList: fromMe
+              ? prevData.chatData[category].aiTextList
+              : [...prevData.chatData[category].aiTextList, newData],
+          },
+        },
+      };
+    });
   };
 
   const onValid = (data: any) => {};
   async function callOpenApi() {
     setIsLoading(true);
     setIsListening(false);
-    addData(category, text, getTimeNow(), true);
+    addNewData(category, text, getTimeNow(), true);
     setText("");
     const APIBody = {
       model: "text-davinci-003",
@@ -178,9 +199,9 @@ const InputMessage = () => {
       ${botTypePrompt}
       ${
         category !== "translation" &&
-        allData[category].myTextList
+        allUserDatas.chatData[category].myTextList
           .map((data, i) => {
-            return `You: ${data.text} \n ${characterName}: ${allData[category].aiTextList[i]}`;
+            return `You: ${data.text} \n ${characterName}: ${allUserDatas.chatData[category].aiTextList[i]}`;
           })
           .toString()
       }
@@ -207,13 +228,13 @@ const InputMessage = () => {
       .then((data) => {
         let answerFromOpenAI: string = data.choices[0].text;
         answerFromOpenAI = answerFromOpenAI.replace("[object Object],", "");
-        addData(category, answerFromOpenAI, getTimeNow(), false);
+        addNewData(category, answerFromOpenAI, getTimeNow(), false);
         setIsLoading(false);
         setAiAnswer(answerFromOpenAI);
       })
       .catch((error) => {
         console.log(error);
-        addData(
+        addNewData(
           category,
           "failed to load text from ChatGPT",
           getTimeNow(),
