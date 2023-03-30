@@ -11,6 +11,7 @@ import {
   botCharacter,
   botPrompt,
   chatDatas,
+  IAllChatData,
   isSoundOn,
   UserData,
   widthSize,
@@ -162,9 +163,8 @@ function Chat() {
   const botTypeForRender = botType.toLowerCase();
 
   const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
-  const allData = allUserDatas.chatData;
+  console.log(allUserDatas);
   const userData = useRecoilValue(UserData);
-
   function setBotChracter(e: any) {
     setBotType(e.target.textContent);
     if (inputRef.current) {
@@ -177,7 +177,7 @@ function Chat() {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [allData, botType]);
+  }, [allUserDatas, botType]);
 
   useEffect(() => {
     const texts = character.find((obj) => obj.title === botType)?.text;
@@ -186,7 +186,9 @@ function Chat() {
     // resetData();
   }, [botType]);
 
-  useEffect(() => {}, [allUserData]);
+  useEffect(() => {
+    console.log(allUserDatas);
+  }, []);
 
   return (
     <>
@@ -214,21 +216,26 @@ function Chat() {
           </SoundToggleBtn>
         </ChatHeader>
         <ChatBox ref={chatBoxRef}>
-          {allData[botTypeForRender].myTextList
-            ? allData[botTypeForRender].myTextList.map((textObj, i) => (
-                <ChatBoxMessage key={`${textObj.id}Box`}>
-                  <ChatFromMe key={`${textObj.id}Me`}>
-                    {textObj.text}
-                  </ChatFromMe>
+          {allUserDatas.chatData[botTypeForRender].myTextList
+            ? allUserDatas.chatData[botTypeForRender].myTextList.map(
+                (textObj, i) => (
+                  <ChatBoxMessage key={`${textObj.id}Box`}>
+                    <ChatFromMe key={`${textObj.id}Me`}>
+                      {textObj.text}
+                    </ChatFromMe>
 
-                  <ChatFromAi key={textObj.id}>
-                    {allData[botTypeForRender].aiTextList[i]
-                      ? allData[botTypeForRender].aiTextList[i].text
-                      : "Writing..."}
-                  </ChatFromAi>
-                  <ChatTime key={`${textObj.id}time`}>{textObj.time}</ChatTime>
-                </ChatBoxMessage>
-              ))
+                    <ChatFromAi key={textObj.id}>
+                      {allUserDatas.chatData[botTypeForRender].aiTextList[i]
+                        ? allUserDatas.chatData[botTypeForRender].aiTextList[i]
+                            .text
+                        : "Writing..."}
+                    </ChatFromAi>
+                    <ChatTime key={`${textObj.id}time`}>
+                      {textObj.time}
+                    </ChatTime>
+                  </ChatBoxMessage>
+                )
+              )
             : null}
         </ChatBox>
         <InputMessage />

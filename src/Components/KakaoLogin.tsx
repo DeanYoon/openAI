@@ -88,16 +88,12 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
     const finalUrl = `${baseUrl}?${params}`;
 
     const fetchKakaoData = async () => {
-      const kakaoTokenRequest = await axios.post(
-        finalUrl,
-        {},
-        {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json",
-          },
-        }
-      );
+      const kakaoTokenRequest = await axios.post(finalUrl, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+      });
 
       if ("access_token" in kakaoTokenRequest.data) {
         const { access_token } = kakaoTokenRequest.data;
@@ -136,41 +132,32 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
           expires: 1,
         });
 
-        //if user exists, get data, if not, create new data
-        axios
-          .get(`http://localhost:4000/users/${loggedInUserData.id}`, {
-            headers: {
-              Authorization: `Bearer ${jwt}`,
-            },
-          })
-          .then((response) => {
-            // If user exists, get the data using the GET method
-            setAllUserDatas(response.data);
-          })
-          .catch((error) => {
-            // If user does not exist, create new user using the POST method
-            const initialData = {
-              id: loggedInUserData.id,
-              profileUrl: loggedInUserData.profile_image,
-              username: loggedInUserData.nickname,
-              chatData: Object.fromEntries(
-                character.map(({ title }) => [
-                  title.toLowerCase(),
-                  initialChatData,
-                ])
-              ),
-            };
-            axios
-              .post("http://localhost:4000/users", initialData, {
-                headers: {
-                  Authorization: `Bearer ${jwt}`,
-                },
-              })
-              .then((response) => {
-                setAllUserDatas(response.data);
-              })
-              .catch((error) => console.log(error));
-          });
+        try {
+          const initialData = {
+            id: loggedInUserData.id,
+            profileUrl: loggedInUserData.profile_image,
+            username: loggedInUserData.nickname,
+            chatData: Object.fromEntries(
+              character.map(({ title }) => [
+                title.toLowerCase(),
+                initialChatData,
+              ])
+            ),
+          };
+          const response = await axios.post(
+            `http://localhost:4001/users/${loggedInUserData.id}`,
+            initialData,
+            {
+              headers: {
+                Authorization: `Bearer ${jwt}`,
+              },
+            }
+          );
+          setAllUserDatas(response.data);
+          console.log(response.data);
+        } catch (error) {
+          console.error(error);
+        }
 
         setIsLoggedIn(true);
 

@@ -1,15 +1,13 @@
-// server.ts
 import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-const db = mongoose.connection;
+import cors from "cors";
 const app = express();
-const PORT = 4000;
+const PORT = 4001;
 
-app.use(bodyParser.json());
-
-// Connect to MongoDB (replace `your_mongodb_connection_string` with your actual connection string)
+// Connect to MongoDB using environment variable for the connection string
 mongoose.connect("mongodb://127.0.0.1:27017/openai");
+const db = mongoose.connection;
 const chatDataSchema = new mongoose.Schema({
   myTextList: [
     {
@@ -44,72 +42,33 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-const handleOpen = () => console.log("Connected to DB");
+const handleOpen = () => console.log("Connected to DB✅");
 const handleError = (error: any) => console.log("DB Error", error);
 
 db.on("error", handleError);
 db.once("open", handleOpen);
 
+app.use(cors());
+app.use(bodyParser.json());
+
+// UserData getting API from Client
+app.post("/users/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const newData = req.body;
+  console.log("from client", newData);
+  try {
+    const user = await User.findOneAndUpdate({ id: userId }, newData, {
+      upsert: true,
+    });
+    console.log(user ? "Data updated" : "New data saved");
+    res.send(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-const getData = async (id: number) => {
-  const videos = await User.findOne({ id: id });
-
-  return videos;
-};
-
-const newUser = new User({
-  id: 123,
-  username: "johnasdasdasdjhkabshjd.doe",
-  profileUrl: "https:ple.com/profile.jpg",
-  chatData: {
-    sarcastic: {
-      myTextList: [
-        {
-          text: "Hello world!",
-          createdAt: "2022-04-01",
-          updatedAt: "2022-04-01",
-        },
-      ],
-      aiTextList: [],
-    },
-    lovely: {
-      myTextList: [
-        {
-          text: "How are you today?",
-          createdAt: "2022-04-01",
-          updatedAt: "2022-04-01",
-        },
-      ],
-      aiTextList: [],
-    },
-    exhausted: {
-      myTextList: [],
-      aiTextList: [],
-    },
-    translation: {
-      myTextList: [],
-      aiTextList: [],
-    },
-    dictionary: {
-      myTextList: [],
-      aiTextList: [],
-    },
-  },
-});
-
-async function fetchData(id: number) {
-  const data = await getData(id);
-  if (data) {
-    await User.findOneAndDelete({ id: id });
-    console.log("found data and deleted");
-  } else {
-    await newUser.save();
-    console.log("data saved");
-  }
-}
-
-fetchData(123);

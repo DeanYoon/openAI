@@ -136,21 +136,6 @@ const InputMessage = () => {
   }
 
   useEffect(() => {
-    axios
-      .put(`http://localhost:4000/users/${loggedInUser.id}`, allUserDatas, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      })
-      .then((response) => {
-        console.log("Data Saved");
-      })
-      .catch((error) => {
-        console.log("Fail to save new data", error);
-      });
-  }, [allUserDatas]);
-
-  useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -290,6 +275,13 @@ const InputMessage = () => {
       utterance.rate = 1.1;
       synth.speak(utterance);
     }
+  }, [aiAnswer]);
+
+  useEffect(() => {
+    axios
+      .post(`http://localhost:4001/users/${allUserDatas.id}`, allUserDatas)
+      .then((response) => console.log("Success", response))
+      .catch((error) => console.error(error));
   }, [aiAnswer]);
   return (
     <ChatBotForm onSubmit={handleSubmit(onValid)}>
