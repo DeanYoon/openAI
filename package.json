@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@firebase/firestore": "^3.9.0",
     "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -17,7 +18,10 @@
     "@types/react-dom": "^18.0.11",
     "axios": "^1.3.4",
     "buffer": "^6.0.3",
+    "cors": "^2.8.5",
     "crypto-browserify": "^3.12.0",
+    "express": "^4.18.2",
+    "firebase": "^9.18.0",
     "font-awesome": "^4.7.0",
     "framer-motion": "^10.2.4",
     "js-cookie": "^3.0.1",
@@ -25,6 +29,8 @@
     "jwt-decode": "^3.1.2",
     "jwt-encode": "^1.0.1",
     "jwt-simple": "^0.5.6",
+    "mongodb": "^5.1.0",
+    "mongoose": "^7.0.3",
     "openai": "^3.2.1",
     "qs": "^6.11.1",
     "react": "^18.2.0",
@@ -41,17 +47,14 @@
     "stream": "^0.0.2",
     "styled-components": "^5.3.8",
     "text-to-speech-js": "^1.1.10",
-    "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "serve": "craco serve",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "server": "node --loader  ts-node/esm server/server.ts",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build",
-    "predeploy": "npm run build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -73,10 +76,14 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
+    "@types/cors": "^2.8.13",
     "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.17",
     "@types/js-cookie": "^3.0.3",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/jwt-encode": "^1.0.0",
+    "@types/mongodb": "^4.0.7",
+    "@types/mongoose": "^5.11.97",
     "@types/react-speech-recognition": "^3.9.1",
     "@types/styled-components": "^5.1.26",
     "@types/ws": "^8.5.4",
@@ -86,10 +93,13 @@
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "react-error-overlay": "6.0.9",
-    "stream-http": "^3.2.0"
+    "stream-http": "^3.2.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.2"
   },
   "overrides": {
     "react-error-overlay": "6.0.9"
   },
+  "type": "module",
   "homepage": "https://deanyoon.github.io/openAI/"
 }

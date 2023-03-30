@@ -1,20 +1,25 @@
 // import { debug } from "console";
 import { faVolumeHigh, faVolumeXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
+  allUserData,
   botCharacter,
   botPrompt,
   chatDatas,
   isSoundOn,
+  UserData,
   widthSize,
 } from "../atoms";
 // Clear the data stored in localStorage
 import { character } from "../Components/characterData";
 
 import InputMessage from "../Components/InputMessage";
+import User from "../models/User";
 
 const Friends = styled.div`
   padding-top: 70px;
@@ -149,7 +154,6 @@ export interface iChatBubbleProps {
 function Chat() {
   const [botType, setBotType] = useRecoilState(botCharacter);
   const [botTypePrompt, setBotTypePrompt] = useRecoilState(botPrompt);
-  const allData = useRecoilValue(chatDatas);
   const resetAllData = useResetRecoilState(chatDatas);
   const width = useRecoilValue(widthSize);
   const [isSound, setIsSound] = useRecoilState(isSoundOn);
@@ -157,9 +161,9 @@ function Chat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const botTypeForRender = botType.toLowerCase();
 
-  function resetData() {
-    localStorage.clear();
-  }
+  const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
+  const allData = allUserDatas.chatData;
+  const userData = useRecoilValue(UserData);
 
   function setBotChracter(e: any) {
     setBotType(e.target.textContent);
@@ -178,9 +182,11 @@ function Chat() {
   useEffect(() => {
     const texts = character.find((obj) => obj.title === botType)?.text;
     texts && setBotTypePrompt(texts);
-
+    Cookies.get("jwt");
     // resetData();
   }, [botType]);
+
+  useEffect(() => {}, [allUserData]);
 
   return (
     <>

@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { apiKey, iApiKey, loginState, UserData } from "../atoms";
-
+import Admin from "../Components/Admin";
 import { KakaoLogin, KakaoLogout } from "../Components/KakaoLogin";
 
 const HomeWrapper = styled.div`
@@ -84,7 +84,9 @@ function Home() {
 
   return (
     <HomeWrapper>
-      {isLoggedIn ? null : (
+      {isLoggedIn ? (
+        <Admin />
+      ) : (
         <LoginBox>
           <LoginForm onSubmit={handleSubmit(onSubmit)}>
             <LoginHead>LOGIN</LoginHead>

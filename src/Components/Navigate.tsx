@@ -1,15 +1,14 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { widthSize } from "../atoms";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCubes,
-  faGear,
   faHome,
   faMessage,
-  faUser,
+  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 const Nav = styled.div`
   min-width: 80px;
@@ -32,6 +31,7 @@ const Items = styled.div`
 const Item = styled.div`
   padding: 20px 0px;
   text-align: center;
+  cursor: pointer;
 `;
 const Setting = styled.div`
   height: 20%;
@@ -42,18 +42,21 @@ const Setting = styled.div`
 
 function Navigate() {
   const [width, setWidth] = useRecoilState(widthSize);
+  const navigate = useNavigate();
   window.addEventListener("resize", () => {
     setWidth(window.innerWidth);
   });
 
-  useEffect(() => {
-    console.log(width);
-  }, [width]);
+  const resetData = () => {
+    localStorage.clear();
+    navigate("/openAI/home");
+    window.location.reload();
+  };
 
   return (
     <Nav>
       <Items>
-        <Link to="/openAI">
+        <Link to="/openAI/home">
           <Item>
             <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
           </Item>
@@ -70,12 +73,9 @@ function Navigate() {
         </Link>
       </Items>
       <Setting>
-        <Link to="/openAI/setting">
-          <Item>
-            {" "}
-            <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>{" "}
-          </Item>
-        </Link>
+        <Item onClick={resetData}>
+          <FontAwesomeIcon icon={faRightFromBracket}></FontAwesomeIcon>{" "}
+        </Item>
       </Setting>
     </Nav>
   );

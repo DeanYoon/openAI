@@ -15,7 +15,7 @@ import {
 import { generateToken } from "../services/auth";
 import Cookies from "js-cookie";
 import { character } from "./characterData";
-
+import User from "../models/User";
 const KakaoIcon = styled(FontAwesomeIcon)`
   scale: 1.3;
   width: 20px;
@@ -130,7 +130,11 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
         const jwt = generateToken(loggedInUserData);
         setJwt(jwt);
         //save jwt in HTTP Only Cookie
-        Cookies.set("jwt", jwt, { httpOnly: true, sameSite: "strict" });
+        Cookies.set("jwt", jwt, {
+          httpOnly: true,
+          sameSite: "strict",
+          expires: 1,
+        });
 
         //if user exists, get data, if not, create new data
         axios

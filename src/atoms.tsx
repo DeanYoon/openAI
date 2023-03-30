@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { character } from "./Components/characterData";
@@ -75,7 +76,7 @@ export interface IChatData {
   myTextList: ITextData[];
   aiTextList: ITextData[];
 }
-interface IAllChatData {
+export interface IAllChatData {
   [key: string]: IChatData;
 }
 export interface IUser {

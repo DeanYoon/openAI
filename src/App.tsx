@@ -8,6 +8,7 @@ import { useRecoilValue } from "recoil";
 import { loginState, UserData, widthSize } from "./atoms";
 import Athentication from "./Routes/Athentication";
 import Header from "./Components/Header";
+import { useEffect } from "react";
 
 const Main = styled.div`
   width: 90vw;
@@ -23,13 +24,14 @@ const Main = styled.div`
 function App() {
   const width = useRecoilValue(widthSize);
   const isLoggedIn = useRecoilValue(loginState);
+
   return (
     <BrowserRouter>
       <Main>
         {width < 500 ? null : <Navigate />}
         <Header />
         <Routes>
-          <Route path="/openAI/" element={<Home />}></Route>
+          <Route path="/openAI/home" element={<Home />}></Route>
           <Route
             path="/openAI/chat"
             element={isLoggedIn ? <Chat /> : <Home />}
