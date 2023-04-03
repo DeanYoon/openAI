@@ -7,11 +7,11 @@ const Title = styled.div``;
 const Admin = () => {
   return (
     <section>
-      <Title>Admins Page</Title>
+      <Title>Welcome to Dean's ChatBot Project</Title>
       <br />
       <User />
       <br />
-      <div className="flexGrow">
+      <div>
         <Link to="/">Home</Link>
       </div>
     </section>

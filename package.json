@@ -53,7 +53,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "server": "node --loader  ts-node/esm server/server.ts",
+    "server": "node --loader  ts-node/esm server/routes.ts",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

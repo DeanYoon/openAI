@@ -85,7 +85,7 @@ export const initialChatData = {
 const initialUserData = {
   id: Date.now().toString(),
   username: "Please Login",
-  profileUrl: "/",
+  profileUrl: "",
   password: "",
   chatData: Object.fromEntries(
     character.map(({ title }) => [title.toLowerCase(), initialChatData])
