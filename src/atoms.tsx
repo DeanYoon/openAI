@@ -12,16 +12,6 @@ export const loginState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export const UserData = atom<IUserData>({
-  key: "UserData",
-  default: {
-    id: 0,
-    nickname: "",
-    profile_image: "",
-  },
-  effects_UNSTABLE: [persistAtom],
-});
-
 export const widthSize = atom({
   key: "width",
   default: window.innerWidth,
@@ -80,9 +70,10 @@ export interface IAllChatData {
   [key: string]: IChatData;
 }
 export interface IUser {
-  id: number;
+  id: string;
   username: string;
   profileUrl: string;
+  password: string;
   chatData: IAllChatData;
 }
 
@@ -92,9 +83,10 @@ export const initialChatData = {
 };
 
 const initialUserData = {
-  id: 1,
-  username: "윤재승",
+  id: Date.now().toString(),
+  username: "Please Login",
   profileUrl: "/",
+  password: "",
   chatData: Object.fromEntries(
     character.map(({ title }) => [title.toLowerCase(), initialChatData])
   ),

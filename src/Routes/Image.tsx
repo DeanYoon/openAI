@@ -33,7 +33,6 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 function Image() {
-  console.log("image");
   const [userPrompt, setUserPrompt] = useState("");
   const [number, setNumber] = useState(1);
   const [imageUrl, setImageUrl] = useState<string | undefined>("");

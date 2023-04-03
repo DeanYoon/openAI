@@ -1,7 +1,5 @@
 import { IUserData } from "../Components/KakaoLogin";
 import sign from "jwt-encode";
-import crypto from "crypto";
-import { Buffer } from "buffer";
 
 const REACT_APP_JWT_SECRET = "afnndasjdnlawnd";
 

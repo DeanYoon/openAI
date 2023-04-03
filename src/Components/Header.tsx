@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { UserData } from "../atoms";
+import { allUserData } from "../atoms";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -46,7 +47,8 @@ const Name = styled.div`
   font-weight: 1000;
 `;
 const Header = () => {
-  const userData = useRecoilValue(UserData);
+  const userData = useRecoilValue(allUserData);
+
   return (
     <Wrapper>
       <ButtonBox>
@@ -54,10 +56,10 @@ const Header = () => {
         <Button color="#FFBD44"></Button>
         <Button color="#00CA4E"></Button>
       </ButtonBox>
-      {userData.profile_image ? (
+      {userData.profileUrl ? (
         <UserInfo>
-          <Name>{userData.nickname}</Name>
-          <UserIcon src={`${userData.profile_image}`} />
+          <Name>{userData.username}</Name>
+          <UserIcon src={`${userData.profileUrl}`} />
         </UserInfo>
       ) : null}
     </Wrapper>

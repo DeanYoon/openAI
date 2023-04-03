@@ -13,7 +13,6 @@ import {
   chatDatas,
   IAllChatData,
   isSoundOn,
-  UserData,
   widthSize,
 } from "../atoms";
 // Clear the data stored in localStorage
@@ -163,8 +162,6 @@ function Chat() {
   const botTypeForRender = botType.toLowerCase();
 
   const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
-  console.log(allUserDatas);
-  const userData = useRecoilValue(UserData);
   function setBotChracter(e: any) {
     setBotType(e.target.textContent);
     if (inputRef.current) {
@@ -185,10 +182,6 @@ function Chat() {
     Cookies.get("jwt");
     // resetData();
   }, [botType]);
-
-  useEffect(() => {
-    console.log(allUserDatas);
-  }, []);
 
   return (
     <>

@@ -5,17 +5,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import styled from "styled-components";
-import {
-  allUserData,
-  initialChatData,
-  loginState,
-  savedJwt,
-  UserData,
-} from "../atoms";
+import { allUserData, loginState, savedJwt } from "../atoms";
 import { generateToken } from "../services/auth";
 import Cookies from "js-cookie";
-import { character } from "./characterData";
-import User from "../models/User";
+import { initialData } from "./initialUserData";
 const KakaoIcon = styled(FontAwesomeIcon)`
   scale: 1.3;
   width: 20px;
@@ -65,14 +58,14 @@ interface FinishKakaoLoginProps {
 }
 
 export interface IUserData {
-  id: number;
+  id: string;
   nickname: string;
   profile_image: string;
+  password: string;
 }
 export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(loginState);
   const navigate = useNavigate();
-  const [userData, setUserData] = useRecoilState(UserData);
   const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
   const [jwt, setJwt] = useRecoilState(savedJwt);
   useEffect(() => {
@@ -117,9 +110,8 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
           id,
           nickname,
           profile_image,
+          password: "",
         };
-
-        setUserData(loggedInUserData);
 
         //Session Storage에 userdata 저장
         sessionStorage.setItem("userData", JSON.stringify(loggedInUserData));
@@ -133,20 +125,9 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
         });
 
         try {
-          const initialData = {
-            id: loggedInUserData.id,
-            profileUrl: loggedInUserData.profile_image,
-            username: loggedInUserData.nickname,
-            chatData: Object.fromEntries(
-              character.map(({ title }) => [
-                title.toLowerCase(),
-                initialChatData,
-              ])
-            ),
-          };
           const response = await axios.post(
-            `http://localhost:4001/users/${loggedInUserData.id}`,
-            initialData,
+            `http://localhost:4001/users/${loggedInUserData.nickname}`,
+            initialData(loggedInUserData),
             {
               headers: {
                 Authorization: `Bearer ${jwt}`,
@@ -154,7 +135,6 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
             }
           );
           setAllUserDatas(response.data);
-          console.log(response.data);
         } catch (error) {
           console.error(error);
         }
@@ -172,10 +152,8 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
 
 export const KakaoLogout = () => {
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(loginState);
-  const resetUserData = useResetRecoilState(UserData);
   const handleClick = () => {
     setIsLoggedIn(false);
-    resetUserData();
   };
   return <KakaoButton onClick={handleClick}>로그아웃</KakaoButton>;
 };

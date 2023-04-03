@@ -5,10 +5,11 @@ import Image from "./Routes/Image";
 import Navigate from "./Components/Navigate";
 import styled from "styled-components";
 import { useRecoilValue } from "recoil";
-import { loginState, UserData, widthSize } from "./atoms";
+import { loginState, widthSize } from "./atoms";
 import Athentication from "./Routes/Athentication";
 import Header from "./Components/Header";
 import { useEffect } from "react";
+import Signup from "./Routes/Signup";
 
 const Main = styled.div`
   width: 90vw;
@@ -37,6 +38,7 @@ function App() {
             element={isLoggedIn ? <Chat /> : <Home />}
           ></Route>
           <Route path="/kakao-login" element={<Athentication />}></Route>
+          <Route path="/signup" element={<Signup />}></Route>
         </Routes>
       </Main>
     </BrowserRouter>

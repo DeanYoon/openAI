@@ -1,8 +1,7 @@
-import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useResetRecoilState } from "recoil";
 import styled from "styled-components";
-import { widthSize } from "../atoms";
+import { allUserData, widthSize } from "../atoms";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCubes,
@@ -43,12 +42,14 @@ const Setting = styled.div`
 function Navigate() {
   const [width, setWidth] = useRecoilState(widthSize);
   const navigate = useNavigate();
+  const resetUserData = useResetRecoilState(allUserData);
   window.addEventListener("resize", () => {
     setWidth(window.innerWidth);
   });
 
   const resetData = () => {
     localStorage.clear();
+    resetUserData();
     navigate("/openAI/home");
     window.location.reload();
   };

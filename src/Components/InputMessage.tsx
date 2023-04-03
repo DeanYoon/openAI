@@ -14,7 +14,6 @@ import {
   ITextData,
   IUser,
   savedJwt,
-  UserData,
 } from "../atoms";
 import { OPENAI_API_KEY } from "../apiKeys";
 import { useEffect, useRef, useState } from "react";
@@ -122,7 +121,6 @@ const InputMessage = () => {
   const category = botType.toLowerCase();
   const [currentLanguage, setCurrentLanguage] = useState(languages[0].value);
   const [allUserDatas, setAllUserDatas] = useRecoilState(allUserData);
-  const loggedInUser = useRecoilValue(UserData);
   const jwt = useRecoilValue(savedJwt);
   function getTimeNow() {
     const now = new Date();
@@ -272,14 +270,17 @@ const InputMessage = () => {
         (voice) => voice.lang === currentLanguage
       )[22]; //22
       utterance.volume = 0.7;
-      utterance.rate = 1.1;
+      utterance.rate = 1;
       synth.speak(utterance);
     }
   }, [aiAnswer]);
 
   useEffect(() => {
     axios
-      .post(`http://localhost:4001/users/${allUserDatas.id}`, allUserDatas)
+      .post(
+        `http://localhost:4001/users/${allUserDatas.username}`,
+        allUserDatas
+      )
       .then((response) => console.log("Success", response))
       .catch((error) => console.error(error));
   }, [aiAnswer]);
