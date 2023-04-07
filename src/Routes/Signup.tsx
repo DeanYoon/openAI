@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { allUserData, loginState } from "../atoms";
+import { hashPassword } from "../Components/hash";
 import { initialData } from "../Components/initialUserData";
 import { IUserData, KakaoLogin } from "../Components/KakaoLogin";
 
@@ -91,7 +92,7 @@ function Signup() {
       id: "",
       nickname: data.username,
       profile_image: "",
-      password: data.password,
+      password: await hashPassword(data.password),
     };
     if (data.password === data.passwordConfirm) {
       setIsWrongPassword("");
