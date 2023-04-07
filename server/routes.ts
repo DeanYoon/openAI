@@ -4,6 +4,7 @@ import cors from "cors";
 import { IUser } from "./user.js";
 import { User } from "./db.js";
 import { authMiddleware } from "./authMiddleware.js";
+import bcrypt from "bcryptjs";
 
 const app = express();
 const PORT = 4001;
@@ -32,13 +33,17 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
-    if (user && user.password === password) {
-      res.status(200).send(user);
-    } else if (!user) {
-      res.status(500).send("User not exists");
+    const user = await User.findOne({ username: username });
+    if (user) {
+      if (password && user.password) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log(isMatch);
+        isMatch
+          ? res.status(200).send(user)
+          : res.status(500).send("Wrong Password");
+      }
     } else {
-      res.status(500).send("Wrong Password");
+      res.status(500).send("User not exists");
     }
 
     // if (!user) {

@@ -9,6 +9,7 @@ import { allUserData, apiKey, iApiKey, loginState, savedJwt } from "../atoms";
 import { IUserData, KakaoLogin, KakaoLogout } from "../Components/KakaoLogin";
 import { generateToken } from "../services/auth";
 import { initialData } from "./initialUserData";
+import { hashPassword } from "./hash";
 
 const LoginBox = styled.div`
   position: relative;
@@ -83,8 +84,9 @@ function Login() {
       id: "",
       nickname: data.username,
       profile_image: "",
-      password: data.password,
+      password: await hashPassword(data.password),
     };
+    console.log(loggedInUserData);
     const jwt = generateToken(loggedInUserData);
     setJwt(jwt);
     try {
@@ -93,6 +95,7 @@ function Login() {
           Authorization: `Bearer ${jwt}`,
         },
       });
+      console.log(response);
       setAllUserDatas(response.data);
       setIsLoggedIn(true);
     } catch (error) {
