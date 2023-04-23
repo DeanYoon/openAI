@@ -67,7 +67,7 @@ function Navigate() {
             <FontAwesomeIcon icon={faMessage}></FontAwesomeIcon>
           </Item>
         </Link>
-        <Link to="/openAI/more">
+        <Link to="/openAI/comments">
           <Item>
             <FontAwesomeIcon icon={faCubes}></FontAwesomeIcon>
           </Item>

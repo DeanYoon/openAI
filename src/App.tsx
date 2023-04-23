@@ -10,6 +10,9 @@ import Athentication from "./Routes/Athentication";
 import Header from "./Components/Header";
 import { useEffect } from "react";
 import Signup from "./Routes/Signup";
+import Comments from "./Routes/Comments";
+import Comment from "./Routes/AddComment";
+import AddComment from "./Routes/AddComment";
 
 const Main = styled.div`
   width: 90vw;
@@ -39,6 +42,8 @@ function App() {
           ></Route>
           <Route path="/kakao-login" element={<Athentication />}></Route>
           <Route path="/signup" element={<Signup />}></Route>
+          <Route path="/openAI/comments" element={<Comments />}></Route>
+          <Route path="/openAI/comments/add" element={<AddComment />}></Route>
         </Routes>
       </Main>
     </BrowserRouter>
