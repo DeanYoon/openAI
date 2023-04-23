@@ -23,7 +23,7 @@ export const character = [
   },
   {
     title: `Translation`,
-    text: `ONLY Translate this into 1. Korean, 2. Chinese and 3. Japanese:\n\n `,
+    text: `ONLY Translate this into 1. Korean, 2. Chinese and 3. Japanese\n\n You: Water\n ${characterName}: 1. Korean : 물(mul) <br> 2. Chinese : 水(shui) <br>3. Janapnese : 水(mizu) `,
     imageUrl: translation,
   },
   {

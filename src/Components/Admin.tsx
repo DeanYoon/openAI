@@ -2,7 +2,10 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import User from "./Users";
 
-const Title = styled.div``;
+const Title = styled.div`
+  font-size: 40px;
+  font-weight: 1000;
+`;
 
 const Admin = () => {
   return (
@@ -11,9 +14,6 @@ const Admin = () => {
       <br />
       <User />
       <br />
-      <div>
-        <Link to="/">Home</Link>
-      </div>
     </section>
   );
 };

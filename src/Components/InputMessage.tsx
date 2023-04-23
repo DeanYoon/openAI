@@ -93,7 +93,6 @@ const LanguageSelect = styled.select`
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const voices = speechSynthesis.getVoices();
 const mic = new SpeechRecognition();
 mic.continuous = true;
 mic.interimResults = true;
@@ -186,7 +185,7 @@ const InputMessage = () => {
           .map((data, i) => {
             return `You: ${data.text} \n ${characterName}: ${allUserDatas.chatData[category].aiTextList[i]}`;
           })
-          .toString()
+          .join("")
       }
 
       You : ${text}\n ${characterName}:`,
@@ -262,20 +261,6 @@ const InputMessage = () => {
   /////////////// Text to Speech //////////////////////
 
   useEffect(() => {
-    if (isSound) {
-      const synth = window.speechSynthesis;
-      const utterance = new SpeechSynthesisUtterance(aiAnswer);
-      utterance.lang = currentLanguage;
-      utterance.voice = voices.filter(
-        (voice) => voice.lang === currentLanguage
-      )[22]; //22
-      utterance.volume = 0.7;
-      utterance.rate = 1;
-      synth.speak(utterance);
-    }
-  }, [aiAnswer]);
-
-  useEffect(() => {
     axios
       .post(
         `http://localhost:4001/users/${allUserDatas.username}`,
@@ -283,7 +268,21 @@ const InputMessage = () => {
       )
       .then((response) => console.log("Success", response))
       .catch((error) => console.error(error));
-  }, [aiAnswer]);
+
+    const voices = speechSynthesis.getVoices();
+    if (isSound) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(aiAnswer);
+      utterance.lang = currentLanguage;
+      utterance.voice = voices.filter(
+        (voice) => voice.lang === currentLanguage
+      )[22]; //22
+      utterance.volume = 0.4;
+      utterance.rate = 0.9;
+      synth.speak(utterance);
+    }
+  }, [aiAnswer, languages]);
+
   return (
     <ChatBotForm onSubmit={handleSubmit(onValid)}>
       <input

@@ -115,10 +115,13 @@ function Login() {
           )}
         </LoginHead>
         <LoginInput>
-          <input {...register("username")} placeholder="USERNAME" />
+          <input
+            {...register("username", { required: true })}
+            placeholder="USERNAME"
+          />
           <input
             type="password"
-            {...register("password")}
+            {...register("password", { required: true })}
             placeholder="PASSWORD"
           />
         </LoginInput>
