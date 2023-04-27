@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { allUserData } from "../atoms";
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -57,10 +58,12 @@ const Header = () => {
         <Button color="#00CA4E"></Button>
       </ButtonBox>
       {userData.profileUrl ? (
-        <UserInfo>
-          <Name>{userData.username}</Name>
-          <UserIcon src={`${userData.profileUrl}`} />
-        </UserInfo>
+        <Link to={"/openAI/profile"}>
+          <UserInfo>
+            <Name>{userData.username}</Name>
+            <UserIcon src={`${userData.profileUrl}`} />
+          </UserInfo>
+        </Link>
       ) : null}
     </Wrapper>
   );

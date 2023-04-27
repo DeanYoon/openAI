@@ -125,6 +125,7 @@ const ChatFromMe = styled.div`
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   color: white;
   border-top-right-radius: 0px;
+  overflow-x: scroll;
 `;
 
 const ChatFromAi = styled.div`

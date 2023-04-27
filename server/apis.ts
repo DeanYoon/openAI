@@ -17,6 +17,7 @@ app.use(bodyParser.json());
 app.post("/users/:username", async (req, res) => {
   const username = req.params.username;
   const newData: IUser = req.body;
+
   try {
     const user = await User.findOneAndUpdate({ username }, newData, {
       upsert: true,
@@ -83,6 +84,7 @@ app.post("/signup", async (req, res) => {
 //게시물
 app.post("/comment/add", async (req, res) => {
   const comment: IComment = req.body;
+
   try {
     await Comment.create(comment);
     res.send(comment);
@@ -98,6 +100,22 @@ app.get("/comments", async (req, res) => {
     res.send(allComments);
   } catch (error) {
     res.status(500).send("fail");
+  }
+});
+
+//edit profile information
+app.post("/profile/edit", async (req, res) => {
+  const { username } = req.body;
+  const updatedProfile = req.body;
+  try {
+    await User.findOneAndUpdate({ username }, updatedProfile, {
+      upsert: true,
+      new: true, // returns the updated document
+    });
+    res.send("updated successfully");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
   }
 });
 

@@ -13,6 +13,7 @@ import Signup from "./Routes/Signup";
 import Comments from "./Routes/Comments";
 import Comment from "./Routes/AddComment";
 import AddComment from "./Routes/AddComment";
+import Profile from "./Routes/Profile";
 
 const Main = styled.div`
   width: 90vw;
@@ -44,6 +45,7 @@ function App() {
           <Route path="/signup" element={<Signup />}></Route>
           <Route path="/openAI/comments" element={<Comments />}></Route>
           <Route path="/openAI/comments/add" element={<AddComment />}></Route>
+          <Route path="/openAI/profile" element={<Profile />}></Route>
         </Routes>
       </Main>
     </BrowserRouter>
