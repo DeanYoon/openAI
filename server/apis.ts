@@ -31,6 +31,17 @@ app.post("/users/:username", async (req, res) => {
   }
 });
 
+app.get("/users/:username", async (req, res) => {
+  const username = req.params.username;
+  try {
+    const user = await User.findById({ username });
+    console.log(user);
+    res.send(user);
+  } catch (err) {
+    res.status(500).send("No user found");
+  }
+});
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -105,10 +116,20 @@ app.get("/comments", async (req, res) => {
 
 //edit profile information
 app.post("/profile/edit", async (req, res) => {
-  const { username } = req.body;
-  const updatedProfile = req.body;
+  const { prevUsername } = req.body;
+  const { edittedUserData } = req.body;
+
+  if (prevUsername !== edittedUserData.username) {
+    const alreadyExists = await User.exists({
+      username: edittedUserData.username,
+    });
+    if (alreadyExists) {
+      return res.status(400).send("User Already Exists");
+    }
+  }
+
   try {
-    await User.findOneAndUpdate({ username }, updatedProfile, {
+    await User.findOneAndUpdate({ username: prevUsername }, edittedUserData, {
       upsert: true,
       new: true, // returns the updated document
     });

@@ -5,6 +5,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { allUserData } from "../atoms";
 import { useEffect, useState } from "react";
+import { hashPassword } from "../Components/hash";
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,33 +33,46 @@ export type IComment = {
 
 interface iData {
   password: string;
-  profileImg: string;
+  password_conf: string;
+  profileImg: object;
   username: string;
 }
 
 const Profile = () => {
   const { register, handleSubmit } = useForm();
   const [loggedInUserInfo, setLoggedInUserInfo] = useRecoilState(allUserData);
+  const [updatedInfo, setUpdatedInfo] = useState({
+    username: loggedInUserInfo.username,
+    password: "",
+  });
   const navigate = useNavigate();
   const [imageData, setImageData] = useState<string>(
     loggedInUserInfo.profileUrl
   );
 
   const onSubmit = async (data: any) => {
+    if (data.password !== data.password_conf) {
+      alert("Password do not match");
+      window.location.reload();
+      return;
+    }
     const edittedUserData = {
       ...loggedInUserInfo,
       profileUrl: imageData,
       username: data.username ? data.username : loggedInUserInfo.username,
-      password: data.password ? data.password : loggedInUserInfo.password,
+      password: data.password
+        ? await hashPassword(data.password)
+        : loggedInUserInfo.password,
     };
-    setLoggedInUserInfo(edittedUserData);
+
     try {
-      const response = await axios.post(
-        `http://localhost:4001/profile/edit`,
-        edittedUserData
-      );
+      const response = await axios.post(`http://localhost:4001/profile/edit`, {
+        edittedUserData: edittedUserData,
+        prevUsername: loggedInUserInfo.username,
+      });
+      setLoggedInUserInfo(edittedUserData);
       console.log(response);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   };
@@ -115,10 +129,21 @@ const Profile = () => {
         <input
           {...register("username", { required: true })}
           placeholder="username"
-          value={loggedInUserInfo.username}
+          onChange={(e) =>
+            setUpdatedInfo({ ...updatedInfo, username: e.target.value })
+          }
+          value={updatedInfo.username}
         />
-        <input {...register("password")} placeholder="password" />
-        <input {...register("password_conf")} placeholder="confirm password" />
+        <input
+          type="password"
+          {...register("password")}
+          placeholder="password"
+        />
+        <input
+          type="password"
+          {...register("password_conf")}
+          placeholder="confirm password"
+        />
 
         <button>Post</button>
       </CommentForm>

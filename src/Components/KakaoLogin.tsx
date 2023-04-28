@@ -140,7 +140,6 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
         }
 
         setIsLoggedIn(true);
-
         navigate("/openAI/chat");
       }
     };
