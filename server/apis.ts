@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { authMiddleware } from "./authMiddleware.js";
 import bcrypt from "bcryptjs";
 import { Comment, IComment } from "./models/Contents.js";
+import { MONGODB_URL } from "./Keys.js";
 
 const app = express();
 const PORT = 4001;
@@ -145,7 +146,7 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-mongoose.connect("mongodb://127.0.0.1:27017/openai");
+mongoose.connect(MONGODB_URL);
 const db = mongoose.connection;
 
 const handleOpen = () => console.log("Connected to DB✅");
