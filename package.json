@@ -43,7 +43,6 @@
     "react-jwt": "^1.1.8",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.9.0",
-    "react-scripts": "^5.0.0",
     "react-speech-recognition": "^3.10.0",
     "recoil": "^0.7.7",
     "recoil-persist": "^4.2.0",
@@ -99,9 +98,10 @@
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "react-error-overlay": "6.0.9",
+    "react-scripts": "^5.0.1",
     "stream-http": "^3.2.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.2",
+    "typescript": "^5.0.4",
     "webpack": "^5.77.0"
   },
   "overrides": {
