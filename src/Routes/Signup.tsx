@@ -8,6 +8,7 @@ import { allUserData, loginState } from "../atoms";
 import { hashPassword } from "../Components/hash";
 import { initialData } from "../Components/initialUserData";
 import { IUserData, KakaoLogin } from "../Components/KakaoLogin";
+import { DOMAIN_URL } from "../apiKeys";
 
 const HomeWrapper = styled.div`
   display: flex;
@@ -98,7 +99,7 @@ function Signup() {
       setIsWrongPassword("");
       try {
         const response = await axios.post(
-          `http://localhost:4001/signup`,
+          `${DOMAIN_URL}/signup`,
           initialData(loggedInUserData)
         );
 

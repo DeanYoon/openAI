@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { allUserData } from "../atoms";
+import { DOMAIN_URL } from "../apiKeys";
 
 const Wrapper = styled.div`
   display: flex;
@@ -41,7 +42,7 @@ const AddComment = () => {
     };
     try {
       const response = await axios.post(
-        `http://localhost:4001/comment/add`,
+        `${DOMAIN_URL}/comment/add`,
         sendComment
       );
       navigate("/openAI/comments");

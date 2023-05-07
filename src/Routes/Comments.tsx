@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { IComment } from "./AddComment";
+import { DOMAIN_URL } from "../apiKeys";
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,7 +25,7 @@ const Comments = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(`http://localhost:4001/comments`);
+      const response = await axios.get(`${DOMAIN_URL}/comments`);
       setComments(response.data);
     };
     fetchData();

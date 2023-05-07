@@ -19,7 +19,7 @@ const HomeWrapper = styled.div`
 `;
 function Home() {
   const isLoggedIn = useRecoilValue(loginState);
-
+  console.log("asd");
   return <HomeWrapper>{isLoggedIn ? <Admin /> : <Login />}</HomeWrapper>;
 }
 

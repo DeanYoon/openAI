@@ -9,6 +9,7 @@ import { allUserData, loginState, savedJwt } from "../atoms";
 import { generateToken } from "../services/auth";
 import Cookies from "js-cookie";
 import { initialData } from "./initialUserData";
+import { DOMAIN_URL } from "../apiKeys";
 const KakaoIcon = styled(FontAwesomeIcon)`
   scale: 1.3;
   width: 20px;
@@ -126,7 +127,7 @@ export const FinishKakaoLogin = ({ code }: FinishKakaoLoginProps) => {
 
         try {
           const response = await axios.post(
-            `http://localhost:4001/users/${loggedInUserData.nickname}`,
+            `${DOMAIN_URL}/users/${loggedInUserData.nickname}`,
             initialData(loggedInUserData),
             {
               headers: {

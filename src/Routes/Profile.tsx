@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { allUserData } from "../atoms";
 import { useEffect, useState } from "react";
 import { hashPassword } from "../Components/hash";
+import { DOMAIN_URL } from "../apiKeys";
 
 const Wrapper = styled.div`
   display: flex;
@@ -66,7 +67,7 @@ const Profile = () => {
     };
 
     try {
-      const response = await axios.post(`http://localhost:4001/profile/edit`, {
+      const response = await axios.post(`${DOMAIN_URL}/profile/edit`, {
         edittedUserData: edittedUserData,
         prevUsername: loggedInUserInfo.username,
       });

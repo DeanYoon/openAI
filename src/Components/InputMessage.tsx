@@ -15,7 +15,7 @@ import {
   IUser,
   savedJwt,
 } from "../atoms";
-import { OPENAI_API_KEY } from "../apiKeys";
+import { DOMAIN_URL, OPENAI_API_KEY } from "../apiKeys";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -262,10 +262,7 @@ const InputMessage = () => {
 
   useEffect(() => {
     axios
-      .post(
-        `http://localhost:4001/users/${allUserDatas.username}`,
-        allUserDatas
-      )
+      .post(`${DOMAIN_URL}/users/${allUserDatas.username}`, allUserDatas)
       .then((response) => console.log("Success", response))
       .catch((error) => console.error(error));
 

@@ -10,6 +10,7 @@ import { IUserData, KakaoLogin, KakaoLogout } from "../Components/KakaoLogin";
 import { generateToken } from "../services/auth";
 import { initialData } from "./initialUserData";
 import { hashPassword } from "./hash";
+import { DOMAIN_URL } from "../apiKeys";
 
 const LoginBox = styled.div`
   position: relative;
@@ -90,7 +91,7 @@ function Login() {
     const jwt = generateToken(loggedInUserData);
     setJwt(jwt);
     try {
-      const response = await axios.post(`http://localhost:4001/login`, data, {
+      const response = await axios.post(`${DOMAIN_URL}/login`, data, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
