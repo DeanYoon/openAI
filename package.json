@@ -107,6 +107,5 @@
   "overrides": {
     "react-error-overlay": "6.0.9"
   },
-  "type": "module",
-  "homepage": "https://deanyoon.github.io/openAI/"
+  "type": "module"
 }
